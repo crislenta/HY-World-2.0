@@ -16,10 +16,12 @@ Requires=docker.service
 [Service]
 Type=simple
 WorkingDirectory=/opt/hyworld2
-ExecStartPre=/usr/bin/docker compose -f deploy/docker-compose.yml pull --ignore-pull-failures
-ExecStart=/usr/bin/docker compose -f deploy/docker-compose.yml up
+# `up --no-build` because the image is already built; never force a rebuild
+# from systemd. Foreground (no -d) so systemd owns the lifecycle.
+ExecStart=/usr/bin/docker compose -f deploy/docker-compose.yml up --no-build
 ExecStop=/usr/bin/docker compose -f deploy/docker-compose.yml down
-Restart=on-failure
+# Recover from anything: clean exit, crash, OOM, or external `docker rm -f`.
+Restart=always
 RestartSec=10
 TimeoutStartSec=0
 
