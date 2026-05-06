@@ -1,0 +1,40 @@
+# docker compose --project-directory deploy up -d
+#
+# Run this from the repo root after the host has Docker + the NVIDIA
+# Container Toolkit installed (deploy/setup_vm.sh handles that on Ubuntu).
+#
+# The build context is the repo root (..) so the image picks up the source
+# tree, but the Dockerfile lives in this folder.
+
+services:
+  hyworld:
+    image: hyworld2:latest
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: hyworld2
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      # Override at deploy time, e.g.
+      #   HF_TOKEN=hf_xxx docker compose up -d
+      # Required if the model repo on HF gates downloads behind a token.
+      HF_TOKEN: "${HF_TOKEN:-}"
+      HUGGING_FACE_HUB_TOKEN: "${HF_TOKEN:-}"
+      # Larger shm helps with PyTorch DataLoader / multi-GPU collectives.
+      NVIDIA_VISIBLE_DEVICES: "all"
+      NVIDIA_DRIVER_CAPABILITIES: "compute,utility,video"
+    shm_size: "8gb"
+    volumes:
+      # Persist the HuggingFace weight cache across container restarts.
+      - ./hf_cache:/root/.cache/huggingface
+      # Persist Gradio inference outputs so users can grab .ply / .glb later.
+      - ./outputs:/app/inference_output
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
