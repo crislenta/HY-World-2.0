@@ -1,0 +1,29 @@
+[Unit]
+Description=HunyuanWorld 2.0 (WorldMirror) Gradio UI
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+# Drop-in for the Docker-based deployment. To use:
+#   sudo cp deploy/systemd/hyworld.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now hyworld.service
+#
+# If you prefer the native (venv) deployment instead, replace ExecStart with:
+#   ExecStart=/opt/hyworld2/deploy/run_native.sh
+# and drop the docker-related Requires=.
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/hyworld2
+# `up --no-build` because the image is already built; never force a rebuild
+# from systemd. Foreground (no -d) so systemd owns the lifecycle.
+ExecStart=/usr/bin/docker compose -f deploy/docker-compose.yml up --no-build
+ExecStop=/usr/bin/docker compose -f deploy/docker-compose.yml down
+# Recover from anything: clean exit, crash, OOM, or external `docker rm -f`.
+Restart=always
+RestartSec=10
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

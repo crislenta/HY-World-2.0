@@ -1,0 +1,16 @@
+# Build-context filter for `docker build` from the repo root.
+# Keep this list minimal so the file does not surprise non-Docker users.
+.git
+.github
+**/__pycache__
+**/*.pyc
+**/*.pyo
+*.egg-info
+.venv
+venv
+.env
+
+# Generated artefacts that should not bloat image layers
+inference_output
+hf_cache
+deploy/hf_cache

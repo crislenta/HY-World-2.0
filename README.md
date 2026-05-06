@@ -260,6 +260,8 @@ torchrun --nproc_per_node=2 -m hyworld2.worldrecon.gradio_app \
 
 For the full list of Gradio app arguments (port, share, local checkpoints, etc.), see [DOCUMENTATION.md](DOCUMENTATION.md#gradio-app).
 
+> **Deploying on Google Cloud?** A turnkey GCP deployment package — Dockerfile, `docker-compose`, GCE bootstrap script, `gcloud`-based one-shot deployer, and a systemd unit — lives in [`deploy/`](deploy/README.md).
+
 
 
 ## 🔮 Performance
